@@ -1,19 +1,28 @@
 import numpy as np
 
-print("=== PQOM Cayley vs Gradient Descent ===")
+# 2x2 SPD with eigenvalues {1, 4}  -> kappa = 4
 A = np.diag([1.0, 4.0])
-b = np.ones(2)
-I = np.eye(2)
+kappa = np.max(np.diag(A)) / np.min(np.diag(A))
+sqrt_k = np.sqrt(kappa)
 
-# Optimal single-step GD on [lambda_min, lambda_max]
-lam_min, lam_max = np.min(np.diag(A)), np.max(np.diag(A))
-alpha_opt = 2.0/(lam_min + lam_max)
-gd_factors = np.abs(1 - alpha_opt*np.diag(A))
+# --- Gradient Descent (single optimal step) ---
+lam = np.diag(A)
+alpha_opt = 2.0 / (lam.min() + lam.max())
+gd_factors = 1.0 - alpha_opt * lam
+gd_contractions = np.abs(gd_factors)  # per-mode |1 - alpha*lambda|
 
-# Cayley (implicit midpoint) map with a modest step
-h = 0.4
-R = np.linalg.solve(I + 0.5*h*A, I - 0.5*h*A)
-cayley_eigs = np.linalg.eigvals(R)
+# --- Cayley / implicit midpoint with optimal step h* ---
+# h* = 2 / sqrt(lmin * lmax)
+h_opt = 2.0 / np.sqrt(lam.min() * lam.max())
+cayley_factors = (1.0 - 0.5 * h_opt * lam) / (1.0 + 0.5 * h_opt * lam)
+cayley_contractions = np.abs(cayley_factors)
 
-print(f"GD:    alpha_opt = {alpha_opt:.3f}, contractions = {gd_factors}")
-print(f"Cayley eigenvalues (per-mode contraction): {np.round(cayley_eigs, 6)}")
+# Theoretical worst-case contraction for midpoint/CG:
+rho = (sqrt_k - 1.0) / (sqrt_k + 1.0)
+
+print("=== PQOM Cayley vs Gradient Descent ===")
+print(f"Eigenvalues(A): {lam}")
+print(f"kappa(A)       : {kappa:.1f},  sqrt(kappa): {sqrt_k:.3f}")
+print(f"GD:    alpha_opt = {alpha_opt:.3f}, contractions = {gd_contractions}")
+print(f"Cayley: h_opt    = {h_opt:.6f}, per-mode |R_h(λ)| = {cayley_contractions}")
+print(f"Worst-case (theory): rho = (sqrt(k)-1)/(sqrt(k)+1) = {rho:.6f}")
