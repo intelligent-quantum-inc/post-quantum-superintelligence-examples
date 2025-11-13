@@ -1,39 +1,40 @@
-# Chapter 4 – Shor’s Algorithm and Post-Quantum Order Finding (Public Demos)
+# Chapter 4 — From Shor’s Algorithm to Post-Quantum Computation
 
-This directory contains two **fully classical**, **public** companion demos for
-Chapter 4 of *Post-Quantum Superintelligence*. These scripts illustrate the
-core mathematical ideas behind Shor-style order finding, without revealing the
-post-quantum operator machinery used in the private PQSI core.
+This folder contains small, self-contained Python demos that illustrate the
+examples in Chapter 4 of *Post-Quantum Superintelligence* (World Scientific, 2026).
 
-## 1. Structured Order Finding (Classical DFT)
+All scripts here are **purely classical** and safe to run on a laptop.  
+They do **not** contain any of the private post-quantum core logic from the
+`pqsi-core-private` repository.
+
+---
+
+## 1. Structured order-finding (Shor-style)
 
 **File:** `shor_structured_dft_demo.py`
 
-This script illustrates the structured case where modular multiplication
-`a^k mod N` can be computed directly. The sequence is embedded into a complex
-signal, a discrete Fourier transform (DFT) is applied, and the dominant
-frequency reveals the candidate order.
+This script shows how the “structured” version of Shor’s factoring algorithm
+can be understood using a classical discrete Fourier transform (DFT).
 
-This mirrors the geometry of Shor’s quantum Fourier transform (QFT), but
-entirely on classical hardware.
+What it does:
 
-Run it:
+- Fixes a small composite integer, e.g. `N = 15`, and a base `a = 2`.
+- Builds the modular sequence
+  \[
+    f(k) = a^k \bmod N,\quad k = 0,\dots,K-1.
+  \]
+- Embeds the residues in a complex phase signal
+  \[
+    s_k = \exp\!\bigl(2\pi i\, f(k) / N\bigr).
+  \]
+- Computes the DFT of `s_k` and finds the dominant non-DC frequency.
+- Uses that frequency to estimate the multiplicative order `r` and then
+  performs the classical Shor post-processing step (GCD) to recover factors.
 
-```bash
-python3 shor_structured_dft_demo.py
-python3 shor_structured_dft_demo.py --N 21 --a 2 --K 64
+This mirrors the *geometry* of Shor’s algorithm:
+hidden periodicity → Fourier peak → candidate order → nontrivial factors.
 
-## 2. Unstructured Correlation Operator Demo
-
-**File:** `shor_unstructured_correlation_demo.py'
-
-This is a tiny unstructured toy example. Given a signal with a hidden period,
-the script constructs a correlation-style operator from cyclic shifts and
-computes its leading eigenvector. A DFT of that eigenvector exposes the
-dominant frequency, revealing the underlying period.
-
-Run it:
+Run:
 
 ```bash
-python3 shor_unstructured_correlation_demo.py
-
+python3 examples/chapter04_shor/shor_structured_dft_demo.py
