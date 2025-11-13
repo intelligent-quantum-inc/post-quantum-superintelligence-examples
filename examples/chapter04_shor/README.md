@@ -1,20 +1,39 @@
-# Chapter 4 — From Shor’s Algorithm to Post-Quantum Computation
+# Chapter 4 – Shor’s Algorithm and Post-Quantum Order Finding (Public Demos)
 
-This folder contains small, classical companion scripts for Chapter 4 of
-*Post-Quantum Superintelligence*.
+This directory contains two **fully classical**, **public** companion demos for
+Chapter 4 of *Post-Quantum Superintelligence*. These scripts illustrate the
+core mathematical ideas behind Shor-style order finding, without revealing the
+post-quantum operator machinery used in the private PQSI core.
 
-## `shor_structured_dft_demo.py`
+## 1. Structured Order Finding (Classical DFT)
 
-Structured, toy Shor-style example for factoring a small composite integer
-(e.g. `N = 15` with base `a = 2`):
+**File:** `shor_structured_dft_demo.py`
 
-- Builds the modular sequence `f(k) = a^k mod N`.
-- Embeds it as a complex signal `s_k = exp(2π i f(k)/N)`.
-- Uses a discrete Fourier transform (DFT) to identify the dominant frequency.
-- Interprets that frequency as an estimate of the order `r`.
-- Applies the classical Shor post-processing (GCD test) to recover the factors.
+This script illustrates the structured case where modular multiplication
+`a^k mod N` can be computed directly. The sequence is embedded into a complex
+signal, a discrete Fourier transform (DFT) is applied, and the dominant
+frequency reveals the candidate order.
 
-This demo is intentionally small and educational. It mirrors the geometric
-effect of the quantum Fourier transform (QFT) in a simple classical setting.
-Larger-scale post-quantum operator methods for order finding live in the
-private `pqsi-core-private` repository.
+This mirrors the geometry of Shor’s quantum Fourier transform (QFT), but
+entirely on classical hardware.
+
+Run it:
+
+```bash
+python3 shor_structured_dft_demo.py
+python3 shor_structured_dft_demo.py --N 21 --a 2 --K 64
+
+## 2. Unstructured Correlation Operator Demo
+
+**File:** `shor_unstructured_correlation_demo.py'
+
+This is a tiny unstructured toy example. Given a signal with a hidden period,
+the script constructs a correlation-style operator from cyclic shifts and
+computes its leading eigenvector. A DFT of that eigenvector exposes the
+dominant frequency, revealing the underlying period.
+
+Run it:
+
+```bash
+python3 shor_unstructured_correlation_demo.py
+
